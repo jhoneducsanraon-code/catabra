@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WEB-Cántabra | Sistema de Gestión</title>
+    <title>Cántabra | Sistema de Gestión</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -1166,7 +1166,6 @@
         </div>
     </div>
 
-    <!-- Main App -->
     <div class="app-container hidden" id="appContainer">
         <!-- Sidebar -->
         <aside class="sidebar" id="sidebar">
@@ -1179,7 +1178,7 @@
                             <path d="M2 12l10 5 10-5"/>
                         </svg>
                     </div>
-                    <span class="logo-text">WEB-<span>Cantabra</span></span>
+                    <span class="logo-text"><span>Cantabra</span></span>
                 </div>
             </div>
             <nav class="sidebar-nav">
@@ -1192,7 +1191,7 @@
                             <rect x="14" y="14" width="7" height="7"/>
                             <rect x="3" y="14" width="7" height="7"/>
                         </svg>
-                        <span>Dashboard</span>
+                        <span>Tablero</span>
                     </div>
                 </div>
                 <div class="nav-section">
@@ -1254,7 +1253,7 @@
             </div>
         </aside>
 
-        <!-- Main Content -->
+        
         <main class="main-content">
             <header class="header">
                 <div style="display: flex; align-items: center; gap: 1rem;">
@@ -1282,7 +1281,6 @@
         </main>
     </div>
 
-    <!-- Product Modal -->
     <div class="modal-overlay" id="productModal">
         <div class="modal">
             <div class="modal-header">
@@ -1320,7 +1318,7 @@
         </div>
     </div>
 
-    <!-- Order Modal (Step 1: Products) -->
+    
     <div class="modal-overlay" id="orderModal">
         <div class="modal modal-lg">
             <div class="modal-header">
@@ -1333,14 +1331,14 @@
                 </button>
             </div>
             <div class="modal-body">
-                <!-- Steps indicator -->
+               
                 <div class="payment-steps">
                     <div class="payment-step active" id="step1Indicator">1. Productos</div>
                     <div class="payment-step" id="step2Indicator">2. Pago</div>
                     <div class="payment-step" id="step3Indicator">3. Confirmar</div>
                 </div>
 
-                <!-- Step 1: Products -->
+                
                 <div id="orderStep1">
                     <div class="form-group">
                         <label class="form-label">Seleccionar productos</label>
@@ -1356,7 +1354,7 @@
                     </div>
                 </div>
 
-                <!-- Step 2: Payment -->
+                
                 <div id="orderStep2" class="hidden">
                     <div class="form-group">
                         <label class="form-label">Metodo de pago</label>
@@ -1416,7 +1414,7 @@
                         </div>
                     </div>
 
-                    <!-- Card Form -->
+                    
                     <div id="cardForm" class="hidden">
                         <div class="card-preview">
                             <div class="card-chip"></div>
@@ -1516,7 +1514,7 @@
                         </div>
                     </div>
 
-                    <!-- Transfer Form -->
+                    
                     <div id="transferForm" class="hidden">
                         <div style="background: var(--bg-elevated); border-radius: 12px; padding: 1.25rem; margin-bottom: 1rem;">
                             <div style="font-size: 0.75rem; color: var(--fg-muted); text-transform: uppercase; margin-bottom: 0.75rem;">Datos Bancarios</div>
@@ -1635,9 +1633,9 @@
     </div>
 
     <script>
-        // ============================================
+
         // DATA STORE & INITIALIZATION
-        // ============================================
+        
         
         let users = JSON.parse(localStorage.getItem('wc_users')) || [];
         let products = JSON.parse(localStorage.getItem('wc_products')) || [];
