@@ -1,0 +1,2927 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WEB-Cántabra | Sistema de Gestión</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --bg-primary: #0a0f14;
+            --bg-secondary: #111920;
+            --bg-card: #161f29;
+            --bg-elevated: #1c2731;
+            --fg-primary: #e8edf3;
+            --fg-secondary: #8b9cb3;
+            --fg-muted: #5a6b7d;
+            --accent: #10b981;
+            --accent-hover: #059669;
+            --accent-glow: rgba(16, 185, 129, 0.3);
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+            --purple: #8b5cf6;
+            --border: #2a3744;
+            --border-light: #3a4a5c;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background: var(--bg-primary);
+            color: var(--fg-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .bg-pattern {
+            position: fixed;
+            inset: 0;
+            background: 
+                radial-gradient(ellipse 80% 50% at 50% -20%, rgba(16, 185, 129, 0.08), transparent),
+                radial-gradient(ellipse 60% 40% at 100% 100%, rgba(59, 130, 246, 0.05), transparent),
+                linear-gradient(180deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .bg-grid {
+            position: fixed;
+            inset: 0;
+            background-image: 
+                linear-gradient(rgba(42, 55, 68, 0.3) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(42, 55, 68, 0.3) 1px, transparent 1px);
+            background-size: 60px 60px;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.4;
+        }
+
+        .font-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-light);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--fg-muted);
+        }
+
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+            position: relative;
+            z-index: 1;
+        }
+
+        .sidebar {
+            width: 260px;
+            background: var(--bg-card);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+            z-index: 100;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .sidebar-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--accent), var(--info));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo-text {
+            font-size: 1.25rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        .logo-text span {
+            color: var(--accent);
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            padding: 1rem 0;
+            overflow-y: auto;
+        }
+
+        .nav-section {
+            padding: 0 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .nav-section-title {
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--fg-muted);
+            padding: 0 0.75rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            border-radius: 8px;
+            color: var(--fg-secondary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-bottom: 2px;
+        }
+
+        .nav-item:hover {
+            background: var(--bg-elevated);
+            color: var(--fg-primary);
+        }
+
+        .nav-item.active {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--accent);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .nav-item svg {
+            width: 20px;
+            height: 20px;
+            flex-shrink: 0;
+        }
+
+        .sidebar-footer {
+            padding: 1rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            background: var(--bg-elevated);
+            border-radius: 10px;
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--accent), var(--info));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+
+        .user-details {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .user-name {
+            font-weight: 500;
+            font-size: 0.875rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .user-role {
+            font-size: 0.75rem;
+            color: var(--fg-muted);
+        }
+
+        .main-content {
+            flex: 1;
+            margin-left: 260px;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: rgba(17, 25, 32, 0.8);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .header-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .content-area {
+            padding: 2rem;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            border-color: var(--border-light);
+        }
+
+        .card-header {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .card-title {
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .card-body {
+            padding: 1.5rem;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent), var(--info));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .stat-card:hover::before {
+            opacity: 1;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--border-light);
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+        }
+
+        .stat-icon.green { background: rgba(16, 185, 129, 0.15); color: var(--accent); }
+        .stat-icon.blue { background: rgba(59, 130, 246, 0.15); color: var(--info); }
+        .stat-icon.yellow { background: rgba(245, 158, 11, 0.15); color: var(--warning); }
+        .stat-icon.red { background: rgba(239, 68, 68, 0.15); color: var(--danger); }
+        .stat-icon.purple { background: rgba(139, 92, 246, 0.15); color: var(--purple); }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: var(--fg-secondary);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.625rem 1.25rem;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+            font-family: inherit;
+        }
+
+        .btn:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px var(--accent-glow);
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-hover);
+            transform: translateY(-1px);
+        }
+
+        .btn-primary:disabled {
+            background: var(--fg-muted);
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: var(--bg-elevated);
+            color: var(--fg-primary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--border);
+            border-color: var(--border-light);
+        }
+
+        .btn-danger {
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--danger);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .btn-danger:hover {
+            background: rgba(239, 68, 68, 0.25);
+        }
+
+        .btn-sm {
+            padding: 0.5rem 0.875rem;
+            font-size: 0.8125rem;
+        }
+
+        .btn-icon {
+            width: 36px;
+            height: 36px;
+            padding: 0;
+            border-radius: 8px;
+        }
+
+        .btn-full {
+            width: 100%;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.8125rem;
+            font-weight: 500;
+            color: var(--fg-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--fg-primary);
+            font-size: 0.875rem;
+            font-family: inherit;
+            transition: all 0.2s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+        }
+
+        .form-input::placeholder {
+            color: var(--fg-muted);
+        }
+
+        .form-select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%238b9cb3' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            padding-right: 2.5rem;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table th {
+            text-align: left;
+            padding: 1rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--fg-muted);
+            background: var(--bg-elevated);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .table td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.875rem;
+        }
+
+        .table tr:hover td {
+            background: rgba(16, 185, 129, 0.03);
+        }
+
+        .table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.375rem;
+            padding: 0.375rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .badge-pending { background: rgba(245, 158, 11, 0.15); color: var(--warning); }
+        .badge-processing { background: rgba(59, 130, 246, 0.15); color: var(--info); }
+        .badge-shipped { background: rgba(139, 92, 246, 0.15); color: var(--purple); }
+        .badge-delivered { background: rgba(16, 185, 129, 0.15); color: var(--accent); }
+        .badge-paid { background: rgba(16, 185, 129, 0.15); color: var(--accent); }
+        .badge-unpaid { background: rgba(239, 68, 68, 0.15); color: var(--danger); }
+        .badge-partial { background: rgba(245, 158, 11, 0.15); color: var(--warning); }
+
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow: hidden;
+            transform: scale(0.95) translateY(20px);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .modal-overlay.active .modal {
+            transform: scale(1) translateY(0);
+        }
+
+        .modal-lg {
+            max-width: 700px;
+        }
+
+        .modal-header {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .modal-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: transparent;
+            border: none;
+            color: var(--fg-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .modal-close:hover {
+            background: var(--bg-elevated);
+            color: var(--fg-primary);
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+            overflow-y: auto;
+            max-height: calc(90vh - 140px);
+        }
+
+        .modal-footer {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.75rem;
+        }
+
+        .toast-container {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .toast {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 1rem 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            min-width: 300px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            transform: translateX(120%);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast-icon {
+            width: 24px;
+            height: 24px;
+            flex-shrink: 0;
+        }
+
+        .toast.success .toast-icon { color: var(--accent); }
+        .toast.error .toast-icon { color: var(--danger); }
+
+        .toast-message {
+            font-size: 0.875rem;
+        }
+
+        .auth-screen {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .auth-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            width: 100%;
+            max-width: 420px;
+            overflow: hidden;
+        }
+
+        .auth-header {
+            padding: 2rem;
+            text-align: center;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .auth-logo {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--accent), var(--info));
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+        }
+
+        .auth-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .auth-subtitle {
+            color: var(--fg-secondary);
+            font-size: 0.875rem;
+        }
+
+        .auth-body {
+            padding: 2rem;
+        }
+
+        .auth-switch {
+            text-align: center;
+            padding: 1.5rem;
+            border-top: 1px solid var(--border);
+            font-size: 0.875rem;
+            color: var(--fg-secondary);
+        }
+
+        .auth-switch a {
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .auth-switch a:hover {
+            text-decoration: underline;
+        }
+
+        .product-image {
+            width: 48px;
+            height: 48px;
+            border-radius: 8px;
+            background: var(--bg-elevated);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .product-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .order-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: var(--bg-elevated);
+            border-radius: 8px;
+            margin-bottom: 0.75rem;
+        }
+
+        .order-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .order-item-info {
+            flex: 1;
+        }
+
+        .order-item-name {
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+
+        .order-item-price {
+            font-size: 0.875rem;
+            color: var(--fg-secondary);
+        }
+
+        .order-item-qty {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .qty-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--fg-primary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .qty-btn:hover {
+            background: var(--accent);
+            border-color: var(--accent);
+        }
+
+        .qty-value {
+            width: 40px;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .status-timeline {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+            margin: 2rem 0;
+        }
+
+        .status-timeline::before {
+            content: '';
+            position: absolute;
+            top: 16px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--border);
+        }
+
+        .status-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .status-dot {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .status-step.active .status-dot {
+            background: var(--accent);
+            border-color: var(--accent);
+        }
+
+        .status-step.completed .status-dot {
+            background: var(--accent);
+            border-color: var(--accent);
+        }
+
+        .status-label {
+            font-size: 0.75rem;
+            color: var(--fg-muted);
+            text-align: center;
+        }
+
+        .status-step.active .status-label {
+            color: var(--accent);
+            font-weight: 500;
+        }
+
+        .mobile-toggle {
+            display: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            color: var(--fg-primary);
+            cursor: pointer;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Payment Methods */
+        .payment-methods {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .payment-method {
+            padding: 1rem;
+            background: var(--bg-elevated);
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+
+        .payment-method:hover {
+            border-color: var(--border-light);
+            background: var(--bg-card);
+        }
+
+        .payment-method.selected {
+            border-color: var(--accent);
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .payment-method-icon {
+            width: 40px;
+            height: 40px;
+            margin: 0 auto 0.5rem;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .payment-method-name {
+            font-weight: 500;
+            font-size: 0.875rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .payment-method-desc {
+            font-size: 0.75rem;
+            color: var(--fg-muted);
+        }
+
+        /* Card Input Styling */
+        .card-input-group {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 1rem;
+        }
+
+        .card-preview {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            border-radius: 12px;
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-preview::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 100px;
+            height: 100px;
+            background: radial-gradient(circle, rgba(16, 185, 129, 0.3) 0%, transparent 70%);
+        }
+
+        .card-chip {
+            width: 40px;
+            height: 30px;
+            background: linear-gradient(135deg, #d4af37 0%, #f4e4ba 50%, #d4af37 100%);
+            border-radius: 4px;
+            margin-bottom: 1rem;
+        }
+
+        .card-number-preview {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.125rem;
+            letter-spacing: 0.1em;
+            margin-bottom: 1rem;
+        }
+
+        .card-details-preview {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+        }
+
+        .card-label {
+            color: var(--fg-muted);
+            margin-bottom: 0.25rem;
+        }
+
+        
+        .qr-container {
+            text-align: center;
+            padding: 1.5rem;
+            background: var(--bg-elevated);
+            border-radius: 12px;
+            margin-bottom: 1rem;
+        }
+
+        .qr-code {
+            width: 180px;
+            height: 180px;
+            background: white;
+            border-radius: 8px;
+            margin: 0 auto 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--bg-primary);
+            font-weight: 600;
+        }
+
+        .qr-instructions {
+            font-size: 0.875rem;
+            color: var(--fg-secondary);
+        }
+
+        /* Payment Steps */
+        .payment-steps {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .payment-step {
+            flex: 1;
+            padding: 0.75rem;
+            background: var(--bg-elevated);
+            border-radius: 8px;
+            text-align: center;
+            font-size: 0.75rem;
+            color: var(--fg-muted);
+            transition: all 0.2s ease;
+        }
+
+        .payment-step.active {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--accent);
+            font-weight: 500;
+        }
+
+        .payment-step.completed {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--accent);
+        }
+
+        /* Yape/Plin colors */
+        .yape-color { background: rgba(113, 26, 165, 0.15); color: #711AA5; }
+        .plin-color { background: rgba(109, 194, 40, 0.15); color: #6DC228; }
+        .card-color { background: rgba(59, 130, 246, 0.15); color: var(--info); }
+        .transfer-color { background: rgba(139, 92, 246, 0.15); color: var(--purple); }
+        .cash-color { background: rgba(245, 158, 11, 0.15); color: var(--warning); }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate-in {
+            animation: fadeInUp 0.5s ease forwards;
+        }
+
+        .stagger-1 { animation-delay: 0.1s; opacity: 0; }
+        .stagger-2 { animation-delay: 0.2s; opacity: 0; }
+        .stagger-3 { animation-delay: 0.3s; opacity: 0; }
+        .stagger-4 { animation-delay: 0.4s; opacity: 0; }
+
+        @media (max-width: 1024px) {
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.open { transform: translateX(0); }
+            .main-content { margin-left: 0; }
+            .mobile-toggle { display: flex; }
+            .sidebar-overlay {
+                position: fixed;
+                inset: 0;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 99;
+                opacity: 0;
+                visibility: hidden;
+                transition: all 0.3s ease;
+            }
+            .sidebar-overlay.active {
+                opacity: 1;
+                visibility: visible;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .content-area { padding: 1rem; }
+            .header { padding: 1rem; }
+            .stat-card { padding: 1rem; }
+            .stat-value { font-size: 1.5rem; }
+            .modal { width: 95%; margin: 1rem; }
+            .modal-lg { max-width: 95%; }
+            .toast-container { left: 1rem; right: 1rem; bottom: 1rem; }
+            .toast { min-width: auto; }
+            .payment-methods { grid-template-columns: 1fr; }
+            .card-input-group { grid-template-columns: 1fr; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+    <div class="bg-pattern"></div>
+    <div class="bg-grid"></div>
+    <div class="toast-container" id="toastContainer"></div>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Auth Screen -->
+    <div class="auth-screen" id="authScreen">
+        <div class="auth-card">
+            <div id="loginForm">
+                <div class="auth-header">
+                    <div class="auth-logo">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5">
+                            <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                            <path d="M2 17l10 5 10-5"/>
+                            <path d="M2 12l10 5 10-5"/>
+                        </svg>
+                    </div>
+                    <h1 class="auth-title">Cantabra</h1>
+                    <p class="auth-subtitle">Sistema de Gestion de Ordenes</p>
+                </div>
+                <div class="auth-body">
+                    <div class="form-group">
+                        <label class="form-label">Correo electronico</label>
+                        <input type="email" class="form-input" id="loginEmail" placeholder="tu@email.com">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Contrasena</label>
+                        <input type="password" class="form-input" id="loginPassword" placeholder="Tu contrasena">
+                    </div>
+                    <button class="btn btn-primary btn-full" onclick="handleLogin()">Iniciar Sesion</button>
+                </div>
+                <div class="auth-switch">
+                    No tienes cuenta? <a onclick="showRegister()">Registrate aqui</a>
+                </div>
+            </div>
+
+            <div id="registerForm" class="hidden">
+                <div class="auth-header">
+                    <div class="auth-logo">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5">
+                            <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                            <path d="M2 17l10 5 10-5"/>
+                            <path d="M2 12l10 5 10-5"/>
+                        </svg>
+                    </div>
+                    <h1 class="auth-title">Crear Cuenta</h1>
+                    <p class="auth-subtitle">Unete a Cantabra</p>
+                </div>
+                <div class="auth-body">
+                    <div class="form-group">
+                        <label class="form-label">Nombre completo</label>
+                        <input type="text" class="form-input" id="registerName" placeholder="Tu nombre">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Correo electronico</label>
+                        <input type="email" class="form-input" id="registerEmail" placeholder="tu@email.com">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Contrasena</label>
+                        <input type="password" class="form-input" id="registerPassword" placeholder="Minimo 6 caracteres">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Rol</label>
+                        <select class="form-input form-select" id="registerRole">
+                            <option value="cliente">Cliente</option>
+                            <option value="admin">Administrador</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-primary btn-full" onclick="handleRegister()">Registrarse</button>
+                </div>
+                <div class="auth-switch">
+                    Ya tienes cuenta? <a onclick="showLogin()">Inicia sesion</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main App -->
+    <div class="app-container hidden" id="appContainer">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <div class="logo-icon">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5">
+                            <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                            <path d="M2 17l10 5 10-5"/>
+                            <path d="M2 12l10 5 10-5"/>
+                        </svg>
+                    </div>
+                    <span class="logo-text">WEB-<span>Cantabra</span></span>
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">Principal</div>
+                    <div class="nav-item active" data-page="dashboard">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="3" width="7" height="7"/>
+                            <rect x="14" y="3" width="7" height="7"/>
+                            <rect x="14" y="14" width="7" height="7"/>
+                            <rect x="3" y="14" width="7" height="7"/>
+                        </svg>
+                        <span>Dashboard</span>
+                    </div>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Gestion</div>
+                    <div class="nav-item" data-page="products">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+                            <line x1="3" y1="6" x2="21" y2="6"/>
+                            <path d="M16 10a4 4 0 0 1-8 0"/>
+                        </svg>
+                        <span>Productos</span>
+                    </div>
+                    <div class="nav-item" data-page="orders">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="9" cy="21" r="1"/>
+                            <circle cx="20" cy="21" r="1"/>
+                            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+                        </svg>
+                        <span>Pedidos</span>
+                    </div>
+                    <div class="nav-item" data-page="tracking">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="1" y="3" width="15" height="13"/>
+                            <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/>
+                            <circle cx="5.5" cy="18.5" r="2.5"/>
+                            <circle cx="18.5" cy="18.5" r="2.5"/>
+                        </svg>
+                        <span>Seguimiento</span>
+                    </div>
+                </div>
+                <div class="nav-section admin-only">
+                    <div class="nav-section-title">Administracion</div>
+                    <div class="nav-item" data-page="users">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                            <circle cx="9" cy="7" r="4"/>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                        </svg>
+                        <span>Usuarios</span>
+                    </div>
+                </div>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="user-avatar" id="userAvatar">U</div>
+                    <div class="user-details">
+                        <div class="user-name" id="userName">Usuario</div>
+                        <div class="user-role" id="userRole">Cliente</div>
+                    </div>
+                    <button class="btn-icon btn-secondary" onclick="handleLogout()" title="Cerrar sesion">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                            <polyline points="16 17 21 12 16 7"/>
+                            <line x1="21" y1="12" x2="9" y2="12"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="header">
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <button class="mobile-toggle" id="mobileToggle">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="3" y1="12" x2="21" y2="12"/>
+                            <line x1="3" y1="6" x2="21" y2="6"/>
+                            <line x1="3" y1="18" x2="21" y2="18"/>
+                        </svg>
+                    </button>
+                    <h1 class="header-title" id="pageTitle">reportes</h1>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-primary" id="newOrderBtn" onclick="openNewOrderModal()">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="5" x2="12" y2="19"/>
+                            <line x1="5" y1="12" x2="19" y2="12"/>
+                        </svg>
+                        <span class="hidden sm:inline">Nuevo Pedido</span>
+                    </button>
+                </div>
+            </header>
+
+            <div class="content-area" id="contentArea"></div>
+        </main>
+    </div>
+
+    <!-- Product Modal -->
+    <div class="modal-overlay" id="productModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title" id="productModalTitle">Nuevo Producto</h3>
+                <button class="modal-close" onclick="closeProductModal()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"/>
+                        <line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="productId">
+                <div class="form-group">
+                    <label class="form-label">Nombre del producto</label>
+                    <input type="text" class="form-input" id="productName" placeholder="Ej: Laptop HP Pavilion">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Precio (S/)</label>
+                    <input type="number" class="form-input" id="productPrice" placeholder="0.00" step="0.01" min="0">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Stock disponible</label>
+                    <input type="number" class="form-input" id="productStock" placeholder="0" min="0">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">URL de imagen (opcional)</label>
+                    <input type="url" class="form-input" id="productImage" placeholder="https://...">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeProductModal()">Cancelar</button>
+                <button class="btn btn-primary" onclick="saveProduct()">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Order Modal (Step 1: Products) -->
+    <div class="modal-overlay" id="orderModal">
+        <div class="modal modal-lg">
+            <div class="modal-header">
+                <h3 class="modal-title">Nuevo Pedido</h3>
+                <button class="modal-close" onclick="closeOrderModal()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"/>
+                        <line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- Steps indicator -->
+                <div class="payment-steps">
+                    <div class="payment-step active" id="step1Indicator">1. Productos</div>
+                    <div class="payment-step" id="step2Indicator">2. Pago</div>
+                    <div class="payment-step" id="step3Indicator">3. Confirmar</div>
+                </div>
+
+                <!-- Step 1: Products -->
+                <div id="orderStep1">
+                    <div class="form-group">
+                        <label class="form-label">Seleccionar productos</label>
+                        <div id="productSelector" style="max-height: 250px; overflow-y: auto;"></div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Productos seleccionados</label>
+                        <div id="selectedProducts"></div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: var(--bg-elevated); border-radius: 8px;">
+                        <span style="font-weight: 500;">Total:</span>
+                        <span class="font-mono" style="font-size: 1.25rem; font-weight: 700; color: var(--accent);" id="orderTotal">S/ 0.00</span>
+                    </div>
+                </div>
+
+                <!-- Step 2: Payment -->
+                <div id="orderStep2" class="hidden">
+                    <div class="form-group">
+                        <label class="form-label">Metodo de pago</label>
+                        <div class="payment-methods" id="paymentMethods">
+                            <div class="payment-method" data-method="card" onclick="selectPaymentMethod('card')">
+                                <div class="payment-method-icon card-color">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+                                        <line x1="1" y1="10" x2="23" y2="10"/>
+                                    </svg>
+                                </div>
+                                <div class="payment-method-name">Tarjeta</div>
+                                <div class="payment-method-desc">Visa, Mastercard</div>
+                            </div>
+                            <div class="payment-method" data-method="yape" onclick="selectPaymentMethod('yape')">
+                                <div class="payment-method-icon yape-color">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                                        <text x="12" y="15" text-anchor="middle" font-size="8" fill="currentColor">Y</text>
+                                    </svg>
+                                </div>
+                                <div class="payment-method-name">Yape</div>
+                                <div class="payment-method-desc">Pago instantaneo</div>
+                            </div>
+                            <div class="payment-method" data-method="plin" onclick="selectPaymentMethod('plin')">
+                                <div class="payment-method-icon plin-color">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                                        <text x="12" y="15" text-anchor="middle" font-size="8" fill="currentColor">P</text>
+                                    </svg>
+                                </div>
+                                <div class="payment-method-name">Plin</div>
+                                <div class="payment-method-desc">Pago instantaneo</div>
+                            </div>
+                            <div class="payment-method" data-method="transfer" onclick="selectPaymentMethod('transfer')">
+                                <div class="payment-method-icon transfer-color">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M17 1l4 4-4 4"/>
+                                        <path d="M3 11V9a4 4 0 0 1 4-4h14"/>
+                                        <path d="M7 23l-4-4 4-4"/>
+                                        <path d="M21 13v2a4 4 0 0 1-4 4H3"/>
+                                    </svg>
+                                </div>
+                                <div class="payment-method-name">Transferencia</div>
+                                <div class="payment-method-desc">Bancaria</div>
+                            </div>
+                            <div class="payment-method" data-method="cash" onclick="selectPaymentMethod('cash')">
+                                <div class="payment-method-icon cash-color">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <line x1="12" y1="1" x2="12" y2="23"/>
+                                        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                                    </svg>
+                                </div>
+                                <div class="payment-method-name">Contraentrega</div>
+                                <div class="payment-method-desc">Paga al recibir</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card Form -->
+                    <div id="cardForm" class="hidden">
+                        <div class="card-preview">
+                            <div class="card-chip"></div>
+                            <div class="card-number-preview" id="cardNumberPreview">**** **** **** ****</div>
+                            <div class="card-details-preview">
+                                <div>
+                                    <div class="card-label">Titular</div>
+                                    <div id="cardNamePreview">NOMBRE</div>
+                                </div>
+                                <div>
+                                    <div class="card-label">Vence</div>
+                                    <div id="cardExpiryPreview">MM/AA</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Numero de tarjeta</label>
+                            <input type="text" class="form-input" id="cardNumber" placeholder="1234 5678 9012 3456" maxlength="19" oninput="formatCardNumber(this)">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Nombre del titular</label>
+                            <input type="text" class="form-input" id="cardName" placeholder="Juan Perez" oninput="updateCardPreview()">
+                        </div>
+                        <div class="card-input-group">
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label class="form-label">Fecha de vencimiento</label>
+                                <input type="text" class="form-input" id="cardExpiry" placeholder="MM/AA" maxlength="5" oninput="formatExpiry(this)">
+                            </div>
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label class="form-label">CVV</label>
+                                <input type="text" class="form-input" id="cardCvv" placeholder="123" maxlength="4">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Yape Form -->
+                    <div id="yapeForm" class="hidden">
+                        <div class="qr-container">
+                            <div class="qr-code">
+                              <img src="/yape_qr_2026-04-29T18-48-34.png" alt="QR Yape" style="width: 180px; height: 180px; border-radius: 8px;">
+                            </div>
+                            <div class="qr-instructions">
+                                Escanea este codigo QR con Yape para realizar el pago
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Numero de celular Yape</label>
+                            <input type="tel" class="form-input" id="yapePhone" placeholder="999 999 999">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Numero de operacion (opcional)</label>
+                            <input type="text" class="form-input" id="yapeOperation" placeholder="Codigo de confirmacion">
+                        </div>
+                    </div>
+
+                    <!-- Plin Form -->
+                    <div id="plinForm" class="hidden">
+                        <div class="qr-container">
+                            <div class="qr-code" style="background: #f0f9e8;">
+                                <svg width="140" height="140" viewBox="0 0 140 140">
+                                    <rect width="140" height="140" fill="#f0f9e8"/>
+                                    <g fill="#6DC228">
+                                        <rect x="10" y="10" width="30" height="30"/>
+                                        <rect x="50" y="10" width="10" height="10"/>
+                                        <rect x="70" y="10" width="10" height="10"/>
+                                        <rect x="100" y="10" width="30" height="30"/>
+                                        <rect x="10" y="50" width="10" height="10"/>
+                                        <rect x="30" y="50" width="10" height="10"/>
+                                        <rect x="50" y="50" width="10" height="10"/>
+                                        <rect x="70" y="50" width="10" height="10"/>
+                                        <rect x="90" y="50" width="10" height="10"/>
+                                        <rect x="120" y="50" width="10" height="10"/>
+                                        <rect x="10" y="70" width="10" height="10"/>
+                                        <rect x="30" y="70" width="10" height="10"/>
+                                        <rect x="50" y="70" width="10" height="10"/>
+                                        <rect x="70" y="70" width="10" height="10"/>
+                                        <rect x="90" y="70" width="10" height="10"/>
+                                        <rect x="110" y="70" width="10" height="10"/>
+                                        <rect x="10" y="100" width="30" height="30"/>
+                                        <rect x="50" y="100" width="10" height="10"/>
+                                        <rect x="70" y="100" width="10" height="10"/>
+                                        <rect x="100" y="100" width="30" height="30"/>
+                                    </g>
+                                </svg>
+                            </div>
+                            <div class="qr-instructions">
+                                Escanea este codigo QR con Plin para realizar el pago
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Numero de celular Plin</label>
+                            <input type="tel" class="form-input" id="plinPhone" placeholder="999 999 999">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Numero de operacion (opcional)</label>
+                            <input type="text" class="form-input" id="plinOperation" placeholder="Codigo de confirmacion">
+                        </div>
+                    </div>
+
+                    <!-- Transfer Form -->
+                    <div id="transferForm" class="hidden">
+                        <div style="background: var(--bg-elevated); border-radius: 12px; padding: 1.25rem; margin-bottom: 1rem;">
+                            <div style="font-size: 0.75rem; color: var(--fg-muted); text-transform: uppercase; margin-bottom: 0.75rem;">Datos Bancarios</div>
+                            <div style="display: grid; gap: 0.75rem;">
+                                <div style="display: flex; justify-content: space-between;">
+                                    <span style="color: var(--fg-secondary);">Banco:</span>
+                                    <span class="font-mono">BCP</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between;">
+                                    <span style="color: var(--fg-secondary);">Cuenta:</span>
+                                    <span class="font-mono">215-12345678-0-12</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between;">
+                                    <span style="color: var(--fg-secondary);">CCI:</span>
+                                    <span class="font-mono">00221500123456789012</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between;">
+                                    <span style="color: var(--fg-secondary);">Titular:</span>
+                                    <span>WEB-Cantabra S.A.C.</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Numero de operacion</label>
+                            <input type="text" class="form-input" id="transferOperation" placeholder="Ingrese el numero de transferencia">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Banco de origen</label>
+                            <select class="form-input form-select" id="transferBank">
+                                <option value="">Seleccione banco</option>
+                                <option value="bcp">BCP</option>
+                                <option value="interbank">Interbank</option>
+                                <option value="scotiabank">Scotiabank</option>
+                                <option value="bbva">BBVA</option>
+                                <option value="banbif">BanBif</option>
+                                <option value="other">Otro</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Cash Form -->
+                    <div id="cashForm" class="hidden">
+                        <div style="background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 12px; padding: 1.25rem; margin-bottom: 1rem;">
+                            <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem;">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--warning)" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"/>
+                                    <line x1="12" y1="8" x2="12" y2="12"/>
+                                    <line x1="12" y1="16" x2="12.01" y2="16"/>
+                                </svg>
+                                <span style="font-weight: 500; color: var(--warning);">Pago Contraentrega</span>
+                            </div>
+                            <p style="font-size: 0.875rem; color: var(--fg-secondary);">
+                                Realizaras el pago en efectivo al momento de recibir tu pedido. 
+                                Asegurate de tener el monto exacto.
+                            </p>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Notas adicionales (opcional)</label>
+                            <textarea class="form-input" id="cashNotes" rows="2" placeholder="Instrucciones especiales para la entrega..."></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 3: Confirmation -->
+                <div id="orderStep3" class="hidden">
+                    <div style="text-align: center; margin-bottom: 1.5rem;">
+                        <div style="width: 60px; height: 60px; background: rgba(16, 185, 129, 0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2">
+                                <polyline points="20 6 9 17 4 12"/>
+                            </svg>
+                        </div>
+                        <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem;">Pedido Listo</h3>
+                        <p style="color: var(--fg-secondary);">Revisa los detalles antes de confirmar</p>
+                    </div>
+
+                    <div style="background: var(--bg-elevated); border-radius: 12px; padding: 1.25rem; margin-bottom: 1rem;">
+                        <div style="font-size: 0.75rem; color: var(--fg-muted); text-transform: uppercase; margin-bottom: 0.75rem;">Resumen del Pedido</div>
+                        <div id="confirmationItems"></div>
+                    </div>
+
+                    <div style="background: var(--bg-elevated); border-radius: 12px; padding: 1.25rem; margin-bottom: 1rem;">
+                        <div style="font-size: 0.75rem; color: var(--fg-muted); text-transform: uppercase; margin-bottom: 0.75rem;">Metodo de Pago</div>
+                        <div id="confirmationPayment"></div>
+                    </div>
+
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 8px;">
+                        <span style="font-weight: 600;">Total a Pagar</span>
+                        <span class="font-mono" style="font-size: 1.5rem; font-weight: 700; color: var(--accent);" id="confirmationTotal">S/ 0.00</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="orderBackBtn" onclick="prevOrderStep()" style="display: none;">Atras</button>
+                <button class="btn btn-primary" id="orderNextBtn" onclick="nextOrderStep()">Continuar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Order Detail Modal -->
+    <div class="modal-overlay" id="orderDetailModal">
+        <div class="modal modal-lg">
+            <div class="modal-header">
+                <h3 class="modal-title">Detalle del Pedido</h3>
+                <button class="modal-close" onclick="closeOrderDetailModal()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"/>
+                        <line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body" id="orderDetailContent"></div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeOrderDetailModal()">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // DATA STORE & INITIALIZATION
+        // ============================================
+        
+        let users = JSON.parse(localStorage.getItem('wc_users')) || [];
+        let products = JSON.parse(localStorage.getItem('wc_products')) || [];
+        let orders = JSON.parse(localStorage.getItem('wc_orders')) || [];
+        let currentUser = JSON.parse(localStorage.getItem('wc_currentUser')) || null;
+        let cart = [];
+        let currentOrderStep = 1;
+        let selectedPaymentMethod = null;
+        let paymentData = {};
+        
+        // Currency formatter
+        function formatCurrency(amount) {
+            return 'S/ ' + amount.toFixed(2);
+        }
+        
+        function seedData() {
+            if (users.length === 0) {
+                users = [
+                    { id: 1, name: 'Admin Principal', email: 'admin@webcantabra.com', password: 'admin123', role: 'admin' },
+                    { id: 2, name: 'Cliente Demo', email: 'cliente@demo.com', password: 'cliente123', role: 'cliente' }
+                ];
+                saveUsers();
+            }
+            
+            if (products.length === 0) {
+                products = [
+                ];
+                saveProducts();
+            }
+            
+            if (orders.length === 0) {
+                orders = [
+                    
+                ];
+                saveOrders();
+            }
+        }
+        
+        function saveUsers() {
+            localStorage.setItem('wc_users', JSON.stringify(users));
+        }
+        
+        function saveProducts() {
+            localStorage.setItem('wc_products', JSON.stringify(products));
+        }
+        
+        function saveOrders() {
+            localStorage.setItem('wc_orders', JSON.stringify(orders));
+        }
+        
+        function saveCurrentUser() {
+            localStorage.setItem('wc_currentUser', JSON.stringify(currentUser));
+        }
+
+        // ============================================
+        // AUTHENTICATION
+        // ============================================
+        
+        function showLogin() {
+            document.getElementById('loginForm').classList.remove('hidden');
+            document.getElementById('registerForm').classList.add('hidden');
+        }
+        
+        function showRegister() {
+            document.getElementById('loginForm').classList.add('hidden');
+            document.getElementById('registerForm').classList.remove('hidden');
+        }
+        
+        function handleLogin() {
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            
+            if (!email || !password) {
+                showToast('Por favor completa todos los campos', 'error');
+                return;
+            }
+            
+            const user = users.find(u => u.email === email && u.password === password);
+            
+            if (user) {
+                currentUser = user;
+                saveCurrentUser();
+                showToast('Bienvenido, ' + user.name, 'success');
+                showApp();
+            } else {
+                showToast('Credenciales incorrectas', 'error');
+            }
+        }
+        
+        function handleRegister() {
+            const name = document.getElementById('registerName').value.trim();
+            const email = document.getElementById('registerEmail').value.trim();
+            const password = document.getElementById('registerPassword').value;
+            const role = document.getElementById('registerRole').value;
+            
+            if (!name || !email || !password) {
+                showToast('Por favor completa todos los campos', 'error');
+                return;
+            }
+            
+            if (password.length < 6) {
+                showToast('La contrasena debe tener al menos 6 caracteres', 'error');
+                return;
+            }
+            
+            if (users.find(u => u.email === email)) {
+                showToast('Este correo ya esta registrado', 'error');
+                return;
+            }
+            
+            const newUser = {
+                id: Date.now(),
+                name,
+                email,
+                password,
+                role
+            };
+            
+            users.push(newUser);
+            saveUsers();
+            
+            currentUser = newUser;
+            saveCurrentUser();
+            
+            showToast('Cuenta creada exitosamente', 'success');
+            showApp();
+        }
+        
+        function handleLogout() {
+            currentUser = null;
+            localStorage.removeItem('wc_currentUser');
+            showAuth();
+            showToast('Sesion cerrada', 'success');
+        }
+        
+        function showAuth() {
+            document.getElementById('authScreen').classList.remove('hidden');
+            document.getElementById('appContainer').classList.add('hidden');
+        }
+        
+        function showApp() {
+            document.getElementById('authScreen').classList.add('hidden');
+            document.getElementById('appContainer').classList.remove('hidden');
+            updateUserUI();
+            checkAdminElements();
+            navigateTo('dashboard');
+        }
+        
+        function updateUserUI() {
+            if (currentUser) {
+                document.getElementById('userName').textContent = currentUser.name;
+                document.getElementById('userRole').textContent = currentUser.role === 'admin' ? 'Administrador' : 'Cliente';
+                document.getElementById('userAvatar').textContent = currentUser.name.charAt(0).toUpperCase();
+            }
+        }
+        
+        function checkAdminElements() {
+            const adminElements = document.querySelectorAll('.admin-only');
+            adminElements.forEach(el => {
+                el.style.display = (currentUser && currentUser.role === 'admin') ? 'block' : 'none';
+            });
+        }
+
+        // ============================================
+        // NAVIGATION
+        // ============================================
+        
+        let currentPage = 'dashboard';
+        
+        function navigateTo(page) {
+            currentPage = page;
+            
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+                if (item.dataset.page === page) {
+                    item.classList.add('active');
+                }
+            });
+            
+            const titles = {
+                dashboard: 'Dashboard',
+                products: 'Productos',
+                orders: 'Pedidos',
+                tracking: 'Seguimiento',
+                users: 'Usuarios'
+            };
+            document.getElementById('pageTitle').textContent = titles[page] || 'Dashboard';
+            
+            renderPage(page);
+            closeSidebar();
+        }
+        
+        function renderPage(page) {
+            switch(page) {
+                case 'dashboard': renderDashboard(); break;
+                case 'products': renderProducts(); break;
+                case 'orders': renderOrders(); break;
+                case 'tracking': renderTracking(); break;
+                case 'users': renderUsers(); break;
+                default: renderDashboard();
+            }
+        }
+
+        // ============================================
+        // DASHBOARD
+        // ============================================
+        
+        function renderDashboard() {
+            const totalOrders = orders.length;
+            const pendingOrders = orders.filter(o => o.status === 'pending').length;
+            const totalRevenue = orders.filter(o => o.paymentStatus === 'paid').reduce((sum, o) => sum + o.total, 0);
+            const totalProducts = products.length;
+            const paidOrders = orders.filter(o => o.paymentStatus === 'paid').length;
+            
+            const recentOrders = orders.slice(-5).reverse();
+            
+            document.getElementById('contentArea').innerHTML = `
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                    <div class="stat-card animate-in stagger-1">
+                        <div class="stat-icon green">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="9" cy="21" r="1"/>
+                                <circle cx="20" cy="21" r="1"/>
+                                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+                            </svg>
+                        </div>
+                        <div class="stat-value">${totalOrders}</div>
+                        <div class="stat-label">Total Pedidos</div>
+                    </div>
+                    <div class="stat-card animate-in stagger-2">
+                        <div class="stat-icon yellow">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"/>
+                                <polyline points="12 6 12 12 16 14"/>
+                            </svg>
+                        </div>
+                        <div class="stat-value">${pendingOrders}</div>
+                        <div class="stat-label">Pendientes</div>
+                    </div>
+                    <div class="stat-card animate-in stagger-3">
+                        <div class="stat-icon blue">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="12" y1="1" x2="12" y2="23"/>
+                                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                            </svg>
+                        </div>
+                        <div class="stat-value font-mono">${formatCurrency(totalRevenue)}</div>
+                        <div class="stat-label">Ingresos Totales</div>
+                    </div>
+                    <div class="stat-card animate-in stagger-4">
+                        <div class="stat-icon purple">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+                                <line x1="1" y1="10" x2="23" y2="10"/>
+                            </svg>
+                        </div>
+                        <div class="stat-value">${paidOrders}</div>
+                        <div class="stat-label">Pagos Completados</div>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="card animate-in stagger-2">
+                        <div class="card-header">
+                            <h3 class="card-title">Pedidos Recientes</h3>
+                            <button class="btn btn-sm btn-secondary" onclick="navigateTo('orders')">Ver todos</button>
+                        </div>
+                        <div class="table-container">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Cliente</th>
+                                        <th>Total</th>
+                                        <th>Estado</th>
+                                        <th>Pago</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${recentOrders.length > 0 ? recentOrders.map(order => `
+                                        <tr>
+                                            <td class="font-mono">#${order.id}</td>
+                                            <td>${order.userName}</td>
+                                            <td class="font-mono">${formatCurrency(order.total)}</td>
+                                            <td>${getStatusBadge(order.status)}</td>
+                                            <td>${getPaymentBadge(order.paymentStatus)}</td>
+                                        </tr>
+                                    `).join('') : '<tr><td colspan="5" style="text-align: center; color: var(--fg-muted);">No hay pedidos</td></tr>'}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <div class="card animate-in stagger-3">
+                        <div class="card-header">
+                            <h3 class="card-title">Productos con Bajo Stock</h3>
+                            <button class="btn btn-sm btn-secondary" onclick="navigateTo('products')">Ver todos</button>
+                        </div>
+                        <div class="table-container">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Producto</th>
+                                        <th>Precio</th>
+                                        <th>Stock</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${products.filter(p => p.stock < 20).slice(0, 5).map(product => `
+                                        <tr>
+                                            <td>
+                                                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                                    <div class="product-image">
+                                                        ${product.image ? `<img src="${product.image}" alt="${product.name}" onerror="this.style.display='none'">` : ''}
+                                                    </div>
+                                                    <span>${product.name}</span>
+                                                </div>
+                                            </td>
+                                            <td class="font-mono">${formatCurrency(product.price)}</td>
+                                            <td>
+                                                <span class="badge ${product.stock < 10 ? 'badge-pending' : 'badge-processing'}">${product.stock} uds</span>
+                                            </td>
+                                        </tr>
+                                    `).join('') || '<tr><td colspan="3" style="text-align: center; color: var(--fg-muted);">No hay productos con bajo stock</td></tr>'}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // ============================================
+        // PRODUCTS
+        // ============================================
+        
+        function renderProducts() {
+            document.getElementById('contentArea').innerHTML = `
+                <div class="card animate-in">
+                    <div class="card-header">
+                        <h3 class="card-title">Catalogo de Productos</h3>
+                        ${currentUser && currentUser.role === 'admin' ? `
+                            <button class="btn btn-primary" onclick="openProductModal()">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="12" y1="5" x2="12" y2="19"/>
+                                    <line x1="5" y1="12" x2="19" y2="12"/>
+                                </svg>
+                                Nuevo Producto
+                            </button>
+                        ` : ''}
+                    </div>
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Producto</th>
+                                    <th>Precio</th>
+                                    <th>Stock</th>
+                                    ${currentUser && currentUser.role === 'admin' ? '<th>Acciones</th>' : ''}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${products.map(product => `
+                                    <tr>
+                                        <td>
+                                            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                                <div class="product-image">
+                                                    ${product.image ? `<img src="${product.image}" alt="${product.name}" onerror="this.style.display='none'">` : ''}
+                                                </div>
+                                                <span>${product.name}</span>
+                                            </div>
+                                        </td>
+                                        <td class="font-mono">${formatCurrency(product.price)}</td>
+                                        <td>
+                                            <span class="badge ${product.stock < 10 ? 'badge-pending' : product.stock < 20 ? 'badge-processing' : 'badge-delivered'}">${product.stock} uds</span>
+                                        </td>
+                                        ${currentUser && currentUser.role === 'admin' ? `
+                                            <td>
+                                                <div style="display: flex; gap: 0.5rem;">
+                                                    <button class="btn btn-sm btn-secondary" onclick="editProduct(${product.id})">Editar</button>
+                                                    <button class="btn btn-sm btn-danger" onclick="deleteProduct(${product.id})">Eliminar</button>
+                                                </div>
+                                            </td>
+                                        ` : ''}
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function openProductModal(productId = null) {
+            const modal = document.getElementById('productModal');
+            const title = document.getElementById('productModalTitle');
+            
+            if (productId) {
+                const product = products.find(p => p.id === productId);
+                if (product) {
+                    title.textContent = 'Editar Producto';
+                    document.getElementById('productId').value = product.id;
+                    document.getElementById('productName').value = product.name;
+                    document.getElementById('productPrice').value = product.price;
+                    document.getElementById('productStock').value = product.stock;
+                    document.getElementById('productImage').value = product.image || '';
+                }
+            } else {
+                title.textContent = 'Nuevo Producto';
+                document.getElementById('productId').value = '';
+                document.getElementById('productName').value = '';
+                document.getElementById('productPrice').value = '';
+                document.getElementById('productStock').value = '';
+                document.getElementById('productImage').value = '';
+            }
+            
+            modal.classList.add('active');
+        }
+        
+        function closeProductModal() {
+            document.getElementById('productModal').classList.remove('active');
+        }
+        
+        function saveProduct() {
+            const id = document.getElementById('productId').value;
+            const name = document.getElementById('productName').value.trim();
+            const price = parseFloat(document.getElementById('productPrice').value) || 0;
+            const stock = parseInt(document.getElementById('productStock').value) || 0;
+            const image = document.getElementById('productImage').value.trim();
+            
+            if (!name) {
+                showToast('El nombre es requerido', 'error');
+                return;
+            }
+            
+            if (price <= 0) {
+                showToast('El precio debe ser mayor a 0', 'error');
+                return;
+            }
+            
+            if (id) {
+                const index = products.findIndex(p => p.id === parseInt(id));
+                if (index !== -1) {
+                    products[index] = { ...products[index], name, price, stock, image };
+                    showToast('Producto actualizado', 'success');
+                }
+            } else {
+                products.push({ id: Date.now(), name, price, stock, image });
+                showToast('Producto creado', 'success');
+            }
+            
+            saveProducts();
+            closeProductModal();
+            renderProducts();
+        }
+        
+        function editProduct(id) {
+            openProductModal(id);
+        }
+        
+        function deleteProduct(id) {
+            if (confirm('Estas seguro de eliminar este producto?')) {
+                products = products.filter(p => p.id !== id);
+                saveProducts();
+                showToast('Producto eliminado', 'success');
+                renderProducts();
+            }
+        }
+
+        // ============================================
+        // ORDERS WITH PAYMENT SYSTEM
+        // ============================================
+        
+        function renderOrders() {
+            const filteredOrders = currentUser.role === 'admin' 
+                ? orders 
+                : orders.filter(o => o.userId === currentUser.id);
+            
+            document.getElementById('contentArea').innerHTML = `
+                <div class="card animate-in">
+                    <div class="card-header">
+                        <h3 class="card-title">Historial de Pedidos</h3>
+                    </div>
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Fecha</th>
+                                    ${currentUser.role === 'admin' ? '<th>Cliente</th>' : ''}
+                                    <th>Productos</th>
+                                    <th>Total</th>
+                                    <th>Estado</th>
+                                    <th>Pago</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${filteredOrders.length > 0 ? filteredOrders.map(order => `
+                                    <tr>
+                                        <td class="font-mono">#${order.id}</td>
+                                        <td>${formatDate(order.createdAt)}</td>
+                                        ${currentUser.role === 'admin' ? `<td>${order.userName}</td>` : ''}
+                                        <td>${order.items.length} productos</td>
+                                        <td class="font-mono">${formatCurrency(order.total)}</td>
+                                        <td>${getStatusBadge(order.status)}</td>
+                                        <td>${getPaymentBadge(order.paymentStatus)}</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-secondary" onclick="viewOrderDetail(${order.id})">Ver</button>
+                                        </td>
+                                    </tr>
+                                `).join('') : '<tr><td colspan="8" style="text-align: center; color: var(--fg-muted); padding: 2rem;">No hay pedidos</td></tr>'}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // ============================================
+        // ORDER MODAL WITH STEPS
+        // ============================================
+        
+        function openNewOrderModal() {
+            cart = [];
+            currentOrderStep = 1;
+            selectedPaymentMethod = null;
+            paymentData = {};
+            
+            updateOrderSteps();
+            renderOrderModal();
+            document.getElementById('orderModal').classList.add('active');
+        }
+        
+        function closeOrderModal() {
+            document.getElementById('orderModal').classList.remove('active');
+            cart = [];
+            currentOrderStep = 1;
+        }
+        
+        function updateOrderSteps() {
+            const steps = ['step1Indicator', 'step2Indicator', 'step3Indicator'];
+            steps.forEach((step, index) => {
+                const el = document.getElementById(step);
+                el.classList.remove('active', 'completed');
+                if (index + 1 < currentOrderStep) {
+                    el.classList.add('completed');
+                } else if (index + 1 === currentOrderStep) {
+                    el.classList.add('active');
+                }
+            });
+            
+            document.getElementById('orderStep1').classList.toggle('hidden', currentOrderStep !== 1);
+            document.getElementById('orderStep2').classList.toggle('hidden', currentOrderStep !== 2);
+            document.getElementById('orderStep3').classList.toggle('hidden', currentOrderStep !== 3);
+            
+            document.getElementById('orderBackBtn').style.display = currentOrderStep > 1 ? 'inline-flex' : 'none';
+            document.getElementById('orderNextBtn').textContent = currentOrderStep === 3 ? 'Confirmar Pedido' : 'Continuar';
+        }
+        
+        function nextOrderStep() {
+            if (currentOrderStep === 1) {
+                if (cart.length === 0) {
+                    showToast('Agrega productos al pedido', 'error');
+                    return;
+                }
+                currentOrderStep = 2;
+            } else if (currentOrderStep === 2) {
+                if (!selectedPaymentMethod) {
+                    showToast('Selecciona un metodo de pago', 'error');
+                    return;
+                }
+                
+                // Validate payment details
+                if (!validatePaymentDetails()) {
+                    return;
+                }
+                
+                // Save payment data
+                collectPaymentData();
+                
+                // Render confirmation
+                renderConfirmation();
+                currentOrderStep = 3;
+            } else if (currentOrderStep === 3) {
+                saveOrder();
+                return;
+            }
+            
+            updateOrderSteps();
+        }
+        
+        function prevOrderStep() {
+            if (currentOrderStep > 1) {
+                currentOrderStep--;
+                updateOrderSteps();
+            }
+        }
+        
+        function renderOrderModal() {
+            const selector = document.getElementById('productSelector');
+            const selected = document.getElementById('selectedProducts');
+            const totalEl = document.getElementById('orderTotal');
+            
+            selector.innerHTML = products.map(p => `
+                <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.75rem; background: var(--bg-elevated); border-radius: 8px; margin-bottom: 0.5rem;">
+                    <div>
+                        <div style="font-weight: 500;">${p.name}</div>
+                        <div style="font-size: 0.875rem; color: var(--fg-secondary);">${formatCurrency(p.price)} - ${p.stock} disponibles</div>
+                    </div>
+                    <button class="btn btn-sm btn-primary" onclick="addToCart(${p.id})" ${p.stock === 0 ? 'disabled' : ''}>
+                        Agregar
+                    </button>
+                </div>
+            `).join('');
+            
+            if (cart.length === 0) {
+                selected.innerHTML = '<div style="text-align: center; color: var(--fg-muted); padding: 1rem;">Selecciona productos para agregar al pedido</div>';
+            } else {
+                selected.innerHTML = cart.map(item => `
+                    <div class="order-item">
+                        <div class="order-item-info">
+                            <div class="order-item-name">${item.name}</div>
+                            <div class="order-item-price">${formatCurrency(item.price)} c/u</div>
+                        </div>
+                        <div class="order-item-qty">
+                            <button class="qty-btn" onclick="updateCartQty(${item.productId}, -1)">-</button>
+                            <span class="qty-value">${item.qty}</span>
+                            <button class="qty-btn" onclick="updateCartQty(${item.productId}, 1)">+</button>
+                        </div>
+                        <button class="btn-icon btn-danger" onclick="removeFromCart(${item.productId})">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="3 6 5 6 21 6"/>
+                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                            </svg>
+                        </button>
+                    </div>
+                `).join('');
+            }
+            
+            const total = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+            totalEl.textContent = formatCurrency(total);
+        }
+        
+        function addToCart(productId) {
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+            
+            const existing = cart.find(item => item.productId === productId);
+            if (existing) {
+                if (existing.qty < product.stock) {
+                    existing.qty++;
+                } else {
+                    showToast('Stock insuficiente', 'error');
+                    return;
+                }
+            } else {
+                cart.push({
+                    productId: product.id,
+                    name: product.name,
+                    price: product.price,
+                    qty: 1
+                });
+            }
+            
+            renderOrderModal();
+        }
+        
+        function updateCartQty(productId, delta) {
+            const item = cart.find(i => i.productId === productId);
+            const product = products.find(p => p.id === productId);
+            
+            if (!item || !product) return;
+            
+            const newQty = item.qty + delta;
+            
+            if (newQty <= 0) {
+                removeFromCart(productId);
+            } else if (newQty <= product.stock) {
+                item.qty = newQty;
+                renderOrderModal();
+            } else {
+                showToast('Stock insuficiente', 'error');
+            }
+        }
+        
+        function removeFromCart(productId) {
+            cart = cart.filter(item => item.productId !== productId);
+            renderOrderModal();
+        }
+
+        // ============================================
+        // PAYMENT METHODS
+        // ============================================
+        
+        function selectPaymentMethod(method) {
+            selectedPaymentMethod = method;
+            
+            // Update UI
+            document.querySelectorAll('.payment-method').forEach(el => {
+                el.classList.toggle('selected', el.dataset.method === method);
+            });
+            
+            // Show/hide forms
+            document.getElementById('cardForm').classList.toggle('hidden', method !== 'card');
+            document.getElementById('yapeForm').classList.toggle('hidden', method !== 'yape');
+            document.getElementById('plinForm').classList.toggle('hidden', method !== 'plin');
+            document.getElementById('transferForm').classList.toggle('hidden', method !== 'transfer');
+            document.getElementById('cashForm').classList.toggle('hidden', method !== 'cash');
+        }
+        
+        function formatCardNumber(input) {
+            let value = input.value.replace(/\s/g, '').replace(/\D/g, '');
+            let formatted = value.match(/.{1,4}/g)?.join(' ') || value;
+            input.value = formatted;
+            updateCardPreview();
+        }
+        
+        function formatExpiry(input) {
+            let value = input.value.replace(/\D/g, '');
+            if (value.length >= 2) {
+                value = value.substring(0, 2) + '/' + value.substring(2, 4);
+            }
+            input.value = value;
+            updateCardPreview();
+        }
+        
+        function updateCardPreview() {
+            const number = document.getElementById('cardNumber')?.value || '';
+            const name = document.getElementById('cardName')?.value?.toUpperCase() || 'NOMBRE';
+            const expiry = document.getElementById('cardExpiry')?.value || 'MM/AA';
+            
+            const numberPreview = document.getElementById('cardNumberPreview');
+            const namePreview = document.getElementById('cardNamePreview');
+            const expiryPreview = document.getElementById('cardExpiryPreview');
+            
+            if (numberPreview) numberPreview.textContent = number || '**** **** **** ****';
+            if (namePreview) namePreview.textContent = name || 'NOMBRE';
+            if (expiryPreview) expiryPreview.textContent = expiry || 'MM/AA';
+        }
+        
+        function validatePaymentDetails() {
+            if (selectedPaymentMethod === 'card') {
+                const number = document.getElementById('cardNumber').value.replace(/\s/g, '');
+                const name = document.getElementById('cardName').value.trim();
+                const expiry = document.getElementById('cardExpiry').value;
+                const cvv = document.getElementById('cardCvv').value;
+                
+                if (number.length < 16) {
+                    showToast('Numero de tarjeta incompleto', 'error');
+                    return false;
+                }
+                if (!name) {
+                    showToast('Ingresa el nombre del titular', 'error');
+                    return false;
+                }
+                if (expiry.length < 5) {
+                    showToast('Fecha de vencimiento invalida', 'error');
+                    return false;
+                }
+                if (cvv.length < 3) {
+                    showToast('CVV invalido', 'error');
+                    return false;
+                }
+            }
+            
+            if (selectedPaymentMethod === 'yape') {
+                const phone = document.getElementById('yapePhone').value.trim();
+                if (!phone || phone.length < 9) {
+                    showToast('Ingresa un numero de celular valido', 'error');
+                    return false;
+                }
+            }
+            
+            if (selectedPaymentMethod === 'plin') {
+                const phone = document.getElementById('plinPhone').value.trim();
+                if (!phone || phone.length < 9) {
+                    showToast('Ingresa un numero de celular valido', 'error');
+                    return false;
+                }
+            }
+            
+            if (selectedPaymentMethod === 'transfer') {
+                const operation = document.getElementById('transferOperation').value.trim();
+                const bank = document.getElementById('transferBank').value;
+                
+                if (!operation) {
+                    showToast('Ingresa el numero de operacion', 'error');
+                    return false;
+                }
+                if (!bank) {
+                    showToast('Selecciona el banco de origen', 'error');
+                    return false;
+                }
+            }
+            
+            return true;
+        }
+        
+        function collectPaymentData() {
+            paymentData = { method: selectedPaymentMethod };
+            
+            if (selectedPaymentMethod === 'card') {
+                paymentData.last4 = document.getElementById('cardNumber').value.slice(-4);
+                paymentData.holder = document.getElementById('cardName').value.toUpperCase();
+            }
+            
+            if (selectedPaymentMethod === 'yape') {
+                paymentData.phone = document.getElementById('yapePhone').value;
+                paymentData.operation = document.getElementById('yapeOperation').value;
+            }
+            
+            if (selectedPaymentMethod === 'plin') {
+                paymentData.phone = document.getElementById('plinPhone').value;
+                paymentData.operation = document.getElementById('plinOperation').value;
+            }
+            
+            if (selectedPaymentMethod === 'transfer') {
+                paymentData.operation = document.getElementById('transferOperation').value;
+                paymentData.bank = document.getElementById('transferBank').value;
+            }
+            
+            if (selectedPaymentMethod === 'cash') {
+                paymentData.notes = document.getElementById('cashNotes').value;
+            }
+        }
+        
+        function renderConfirmation() {
+            const itemsContainer = document.getElementById('confirmationItems');
+            const paymentContainer = document.getElementById('confirmationPayment');
+            const totalEl = document.getElementById('confirmationTotal');
+            
+            itemsContainer.innerHTML = cart.map(item => `
+                <div style="display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid var(--border);">
+                    <div>
+                        <span style="font-weight: 500;">${item.name}</span>
+                        <span style="color: var(--fg-muted);"> x${item.qty}</span>
+                    </div>
+                    <span class="font-mono">${formatCurrency(item.price * item.qty)}</span>
+                </div>
+            `).join('');
+            
+            const paymentNames = {
+                card: 'Tarjeta de Credito/Debito',
+                yape: 'Yape',
+                plin: 'Plin',
+                transfer: 'Transferencia Bancaria',
+                cash: 'Pago Contraentrega'
+            };
+            
+            let paymentDetails = '';
+            if (selectedPaymentMethod === 'card') {
+                paymentDetails = `<div style="font-size: 0.875rem; color: var(--fg-secondary);">Terminada en ****${paymentData.last4}</div>`;
+            }
+            if (selectedPaymentMethod === 'yape' || selectedPaymentMethod === 'plin') {
+                paymentDetails = `<div style="font-size: 0.875rem; color: var(--fg-secondary);">Celular: ${paymentData.phone}</div>`;
+            }
+            if (selectedPaymentMethod === 'transfer') {
+                paymentDetails = `<div style="font-size: 0.875rem; color: var(--fg-secondary);">Operacion: ${paymentData.operation}</div>`;
+            }
+            
+            paymentContainer.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                    <div class="payment-method-icon ${selectedPaymentMethod}-color" style="width: 40px; height: 40px;">
+                        ${getPaymentIcon(selectedPaymentMethod)}
+                    </div>
+                    <div>
+                        <div style="font-weight: 500;">${paymentNames[selectedPaymentMethod]}</div>
+                        ${paymentDetails}
+                    </div>
+                </div>
+            `;
+            
+            const total = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+            totalEl.textContent = formatCurrency(total);
+        }
+        
+        function getPaymentIcon(method) {
+            const icons = {
+                card: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>',
+                yape: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><text x="12" y="15" text-anchor="middle" font-size="8" fill="currentColor">Y</text></svg>',
+                plin: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><text x="12" y="15" text-anchor="middle" font-size="8" fill="currentColor">P</text></svg>',
+                transfer: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>',
+                cash: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>'
+            };
+            return icons[method] || '';
+        }
+        
+        function saveOrder() {
+            const total = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+            
+            const newOrder = {
+                id: 1000 + orders.length + 1,
+                userId: currentUser.id,
+                userName: currentUser.name,
+                items: cart.map(item => ({
+                    productId: item.productId,
+                    name: item.name,
+                    price: item.price,
+                    qty: item.qty
+                })),
+                total,
+                status: 'pending',
+                paymentMethod: selectedPaymentMethod,
+                paymentStatus: selectedPaymentMethod === 'cash' ? 'pending' : 'paid',
+                paymentDetails: paymentData,
+                createdAt: new Date().toISOString()
+            };
+            
+            // Update stock
+            cart.forEach(item => {
+                const product = products.find(p => p.id === item.productId);
+                if (product) {
+                    product.stock -= item.qty;
+                }
+            });
+            
+            orders.push(newOrder);
+            saveOrders();
+            saveProducts();
+            
+            closeOrderModal();
+            showToast('Pedido creado exitosamente', 'success');
+            navigateTo('orders');
+        }
+
+        // ============================================
+        // ORDER DETAIL
+        // ============================================
+        
+        function viewOrderDetail(orderId) {
+            const order = orders.find(o => o.id === orderId);
+            if (!order) return;
+            
+            const content = document.getElementById('orderDetailContent');
+            
+            const paymentNames = {
+                card: 'Tarjeta',
+                yape: 'Yape',
+                plin: 'Plin',
+                transfer: 'Transferencia',
+                cash: 'Contraentrega'
+            };
+            
+            content.innerHTML = `
+                <div style="margin-bottom: 1.5rem;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
+                        <div>
+                            <div style="font-size: 0.75rem; color: var(--fg-muted); text-transform: uppercase;">Pedido</div>
+                            <div class="font-mono" style="font-size: 1.25rem; font-weight: 600;">#${order.id}</div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="font-size: 0.75rem; color: var(--fg-muted); text-transform: uppercase;">Fecha</div>
+                            <div>${formatDate(order.createdAt)}</div>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 0.75rem;">
+                        ${getStatusBadge(order.status)}
+                        ${getPaymentBadge(order.paymentStatus)}
+                    </div>
+                </div>
+                
+                <div style="margin-bottom: 1.5rem;">
+                    <div style="font-size: 0.75rem; color: var(--fg-muted); text-transform: uppercase; margin-bottom: 0.75rem;">Estado del pedido</div>
+                    ${renderStatusTimeline(order.status)}
+                </div>
+                
+                <div style="margin-bottom: 1.5rem;">
+                    <div style="font-size: 0.75rem; color: var(--fg-muted); text-transform: uppercase; margin-bottom: 0.75rem;">Metodo de Pago</div>
+                    <div style="display: flex; align-items: center; gap: 0.75rem; padding: 1rem; background: var(--bg-elevated); border-radius: 8px;">
+                        <div class="payment-method-icon ${order.paymentMethod}-color" style="width: 40px; height: 40px;">
+                            ${getPaymentIcon(order.paymentMethod)}
+                        </div>
+                        <div>
+                            <div style="font-weight: 500;">${paymentNames[order.paymentMethod]}</div>
+                            ${order.paymentDetails?.last4 ? `<div style="font-size: 0.875rem; color: var(--fg-secondary);">****${order.paymentDetails.last4}</div>` : ''}
+                            ${order.paymentDetails?.phone ? `<div style="font-size: 0.875rem; color: var(--fg-secondary);">${order.paymentDetails.phone}</div>` : ''}
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="margin-bottom: 1.5rem;">
+                    <div style="font-size: 0.75rem; color: var(--fg-muted); text-transform: uppercase; margin-bottom: 0.75rem;">Productos</div>
+                    ${order.items.map(item => `
+                        <div class="order-item">
+                            <div class="order-item-info">
+                                <div class="order-item-name">${item.name}</div>
+                                <div class="order-item-price">${formatCurrency(item.price)} x ${item.qty}</div>
+                            </div>
+                            <div class="font-mono" style="font-weight: 500;">${formatCurrency(item.price * item.qty)}</div>
+                        </div>
+                    `).join('')}
+                </div>
+                
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: var(--bg-elevated); border-radius: 8px;">
+                    <span style="font-weight: 600;">Total</span>
+                    <span class="font-mono" style="font-size: 1.25rem; font-weight: 700; color: var(--accent);">${formatCurrency(order.total)}</span>
+                </div>
+                
+                ${currentUser && currentUser.role === 'admin' ? `
+                    <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border);">
+                        <div style="font-size: 0.75rem; color: var(--fg-muted); text-transform: uppercase; margin-bottom: 0.75rem;">Actualizar Estado</div>
+                        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem;">
+                            <button class="btn btn-sm ${order.status === 'pending' ? 'btn-primary' : 'btn-secondary'}" onclick="updateOrderStatus(${order.id}, 'pending')">Pendiente</button>
+                            <button class="btn btn-sm ${order.status === 'processing' ? 'btn-primary' : 'btn-secondary'}" onclick="updateOrderStatus(${order.id}, 'processing')">Procesando</button>
+                            <button class="btn btn-sm ${order.status === 'shipped' ? 'btn-primary' : 'btn-secondary'}" onclick="updateOrderStatus(${order.id}, 'shipped')">Enviado</button>
+                            <button class="btn btn-sm ${order.status === 'delivered' ? 'btn-primary' : 'btn-secondary'}" onclick="updateOrderStatus(${order.id}, 'delivered')">Entregado</button>
+                        </div>
+                        <div style="font-size: 0.75rem; color: var(--fg-muted); text-transform: uppercase; margin-bottom: 0.75rem;">Estado del Pago</div>
+                        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                            <button class="btn btn-sm ${order.paymentStatus === 'pending' ? 'btn-primary' : 'btn-secondary'}" onclick="updatePaymentStatus(${order.id}, 'pending')">Pendiente</button>
+                            <button class="btn btn-sm ${order.paymentStatus === 'paid' ? 'btn-primary' : 'btn-secondary'}" onclick="updatePaymentStatus(${order.id}, 'paid')">Pagado</button>
+                        </div>
+                    </div>
+                ` : ''}
+            `;
+            
+            document.getElementById('orderDetailModal').classList.add('active');
+        }
+        
+        function closeOrderDetailModal() {
+            document.getElementById('orderDetailModal').classList.remove('active');
+        }
+        
+        function updateOrderStatus(orderId, newStatus) {
+            const order = orders.find(o => o.id === orderId);
+            if (order) {
+                order.status = newStatus;
+                saveOrders();
+                showToast('Estado actualizado', 'success');
+                viewOrderDetail(orderId);
+            }
+        }
+        
+        function updatePaymentStatus(orderId, newStatus) {
+            const order = orders.find(o => o.id === orderId);
+            if (order) {
+                order.paymentStatus = newStatus;
+                saveOrders();
+                showToast('Estado de pago actualizado', 'success');
+                viewOrderDetail(orderId);
+            }
+        }
+
+        // ============================================
+        // TRACKING
+        // ============================================
+        
+        function renderTracking() {
+            const filteredOrders = currentUser.role === 'admin' 
+                ? orders 
+                : orders.filter(o => o.userId === currentUser.id);
+            
+            document.getElementById('contentArea').innerHTML = `
+                <div class="card animate-in">
+                    <div class="card-header">
+                        <h3 class="card-title">Seguimiento de Pedidos</h3>
+                    </div>
+                    <div class="card-body">
+                        ${filteredOrders.length > 0 ? filteredOrders.map(order => `
+                            <div style="padding: 1.5rem; background: var(--bg-elevated); border-radius: 12px; margin-bottom: 1rem;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                                    <div>
+                                        <span class="font-mono" style="font-weight: 600;">Pedido #${order.id}</span>
+                                        <span style="margin-left: 0.75rem; color: var(--fg-secondary);">${formatDate(order.createdAt)}</span>
+                                    </div>
+                                    <div style="display: flex; gap: 0.5rem;">
+                                        ${getStatusBadge(order.status)}
+                                        ${getPaymentBadge(order.paymentStatus)}
+                                    </div>
+                                </div>
+                                ${renderStatusTimeline(order.status)}
+                                <div style="margin-top: 1rem; display: flex; justify-content: space-between; align-items: center;">
+                                    <span style="color: var(--fg-secondary);">${order.items.length} productos</span>
+                                    <span class="font-mono" style="font-weight: 600;">${formatCurrency(order.total)}</span>
+                                </div>
+                            </div>
+                        `).join('') : '<div style="text-align: center; color: var(--fg-muted); padding: 3rem;">No hay pedidos para mostrar</div>'}
+                    </div>
+                </div>
+            `;
+        }
+        
+        function renderStatusTimeline(status) {
+            const statuses = ['pending', 'processing', 'shipped', 'delivered'];
+            const currentIndex = statuses.indexOf(status);
+            
+            return `
+                <div class="status-timeline">
+                    ${statuses.map((s, i) => `
+                        <div class="status-step ${i < currentIndex ? 'completed' : ''} ${i === currentIndex ? 'active' : ''}">
+                            <div class="status-dot">
+                                ${i < currentIndex ? `
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3">
+                                        <polyline points="20 6 9 17 4 12"/>
+                                    </svg>
+                                ` : ''}
+                            </div>
+                            <span class="status-label">${getStatusLabel(s)}</span>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        // ============================================
+        // USERS
+        // ============================================
+        
+        function renderUsers() {
+            if (currentUser.role !== 'admin') {
+                navigateTo('dashboard');
+                return;
+            }
+            
+            document.getElementById('contentArea').innerHTML = `
+                <div class="card animate-in">
+                    <div class="card-header">
+                        <h3 class="card-title">Usuarios Registrados</h3>
+                    </div>
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Email</th>
+                                    <th>Rol</th>
+                                    <th>Pedidos</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${users.map(user => {
+                                    const userOrders = orders.filter(o => o.userId === user.id).length;
+                                    return `
+                                        <tr>
+                                            <td>
+                                                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                                    <div class="user-avatar" style="width: 32px; height: 32px; font-size: 0.75rem;">${user.name.charAt(0).toUpperCase()}</div>
+                                                    <span>${user.name}</span>
+                                                </div>
+                                            </td>
+                                            <td>${user.email}</td>
+                                            <td>
+                                                <span class="badge ${user.role === 'admin' ? 'badge-processing' : 'badge-delivered'}">${user.role === 'admin' ? 'Administrador' : 'Cliente'}</span>
+                                            </td>
+                                            <td>${userOrders}</td>
+                                        </tr>
+                                    `;
+                                }).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+        }
+
+        // ============================================
+        // UTILITY FUNCTIONS
+        // ============================================
+        
+        function getStatusBadge(status) {
+            const badges = {
+                pending: '<span class="badge badge-pending">Pendiente</span>',
+                processing: '<span class="badge badge-processing">Procesando</span>',
+                shipped: '<span class="badge badge-shipped">Enviado</span>',
+                delivered: '<span class="badge badge-delivered">Entregado</span>'
+            };
+            return badges[status] || badges.pending;
+        }
+        
+        function getPaymentBadge(status) {
+            const badges = {
+                paid: '<span class="badge badge-paid">Pagado</span>',
+                pending: '<span class="badge badge-unpaid">Pendiente de Pago</span>',
+                partial: '<span class="badge badge-partial">Pago Parcial</span>'
+            };
+            return badges[status] || badges.pending;
+        }
+        
+        function getStatusLabel(status) {
+            const labels = {
+                pending: 'Pendiente',
+                processing: 'Procesando',
+                shipped: 'Enviado',
+                delivered: 'Entregado'
+            };
+            return labels[status] || status;
+        }
+        
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('es-PE', {
+                day: '2-digit',
+                month: 'short',
+                year: 'numeric'
+            });
+        }
+        
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            
+            const icon = type === 'success' 
+                ? '<svg class="toast-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>'
+                : '<svg class="toast-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>';
+            
+            toast.innerHTML = `${icon}<span class="toast-message">${message}</span>`;
+            container.appendChild(toast);
+            
+            requestAnimationFrame(() => toast.classList.add('show'));
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // ============================================
+        // MOBILE SIDEBAR
+        // ============================================
+        
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+            document.getElementById('sidebarOverlay').classList.toggle('active');
+        }
+        
+        function closeSidebar() {
+            document.getElementById('sidebar').classList.remove('open');
+            document.getElementById('sidebarOverlay').classList.remove('active');
+        }
+
+        // ============================================
+        // EVENT LISTENERS & INITIALIZATION
+        // ============================================
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            seedData();
+            
+            if (currentUser) {
+                showApp();
+            } else {
+                showAuth();
+            }
+            
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    const page = this.dataset.page;
+                    if (page) navigateTo(page);
+                });
+            });
+            
+            document.getElementById('mobileToggle').addEventListener('click', toggleSidebar);
+            document.getElementById('sidebarOverlay').addEventListener('click', closeSidebar);
+            
+            document.querySelectorAll('.modal-overlay').forEach(overlay => {
+                overlay.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        this.classList.remove('active');
+                    }
+                });
+            });
+            
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    document.querySelectorAll('.modal-overlay.active').forEach(modal => {
+                        modal.classList.remove('active');
+                    });
+                }
+            });
+            
+            document.querySelectorAll('#authScreen input').forEach(input => {
+                input.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        const loginForm = document.getElementById('loginForm');
+                        if (!loginForm.classList.contains('hidden')) {
+                            handleLogin();
+                        } else {
+                            handleRegister();
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
